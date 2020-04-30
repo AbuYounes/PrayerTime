@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">PrayerTime</string>
+
+    <string name="fajr">Fajr</string>
+    <string name="shoeroeq">Shoeroeq</string>
+    <string name="dohr">Dohr</string>
+    <string name="asr">Asr</string>
+    <string name="maghrib">Maghrib</string>
+    <string name="isha">Isha</string>
+
+    <string name="fajr_arabic">الفجر</string>
+    <string name="shoeroeq_arabic">الشروق</string>
+    <string name="dohr_arabic">الظهر</string>
+    <string name="asr_arabic">العصر</string>
+    <string name="maghrib_arabic">المغرب</string>
+    <string name="isha_arabic">العشاء</string>
+    <string name="alarm">Alarm</string>
+    <string name="set_alarm_time">Set alarm</string>
+    <string name="ok">OK</string>
+    <string name="save">Save</string>
+</resources>

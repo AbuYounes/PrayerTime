@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/prayerTimeFragment">
+
+    <fragment
+        android:id="@+id/prayerTimeFragment"
+        android:name="com.example.farid.prayertime.ui.fragment.PrayerTimeFragment"
+        android:label="Gebedstijden Anour Madrasati"
+        tools:layout="@layout/fragment_prayer_time" />
+
+    <fragment
+        android:id="@+id/alarmFragment"
+        android:name="com.example.farid.prayertime.ui.fragment.AlarmFragment"
+        android:label="Alarm"
+        tools:layout="@layout/fragment_alarm" />
+
+    <fragment
+        android:id="@+id/setMinutesFragment"
+        android:name="com.example.farid.prayertime.ui.fragment.AlarmDialogFragment"
+        android:label="Set Minutes"
+        tools:layout="@layout/dialog_set_alarm" />
+</navigation>

@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="8dp"
+    tools:context=".ui.fragment.PrayerTimeFragment">
+
+    <TextView
+        android:id="@+id/date_textView_latin"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/date_textView_arabic"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:layout_marginTop="12dp"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="3"
+        android:layout_marginTop="32dp"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_weight="1">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#209e9e9e"
+                android:text="@string/fajr"
+                android:layout_marginTop="16dp"
+                android:textSize="20sp"
+                android:textStyle="bold"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/shoeroeq"
+                android:layout_marginTop="16dp"
+                android:textSize="20sp"
+                android:textStyle="bold"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#209e9e9e"
+                android:text="@string/dohr"
+                android:layout_marginTop="16dp"
+                android:textSize="20sp"
+                android:textStyle="bold"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/asr"
+                android:layout_marginTop="16dp"
+                android:textSize="20sp"
+                android:textStyle="bold"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#209e9e9e"
+                android:text="@string/maghrib"
+                android:layout_marginTop="16dp"
+                android:textSize="20sp"
+                android:textStyle="bold"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/isha"
+                android:layout_marginTop="16dp"
+                android:textSize="20sp"
+                android:textStyle="bold"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_weight="1">
+
+            <TextView
+                android:id="@+id/fajrTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#209e9e9e"
+                android:gravity="center_horizontal"
+                android:layout_marginTop="16dp"
+                android:textSize="20sp" />
+            <TextView
+                android:id="@+id/shoerouqTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:layout_marginTop="16dp"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/dohrTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#209e9e9e"
+                android:gravity="center_horizontal"
+                android:layout_marginTop="16dp"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/asrTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:layout_marginTop="16dp"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/maghribTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#209e9e9e"
+                android:gravity="center_horizontal"
+                android:layout_marginTop="16dp"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/ishaTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:layout_marginTop="16dp"
+                android:textSize="20sp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:layout_weight="1">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#209e9e9e"
+                android:text="@string/fajr_arabic"
+                android:layout_marginTop="16dp"
+                android:textSize="20sp"
+                android:textStyle="bold"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/shoeroeq_arabic"
+                android:layout_marginTop="16dp"
+                android:textSize="20sp"
+                android:textStyle="bold"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#209e9e9e"
+                android:text="@string/dohr_arabic"
+                android:layout_marginTop="16dp"
+                android:textSize="20sp"
+                android:textStyle="bold"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/asr_arabic"
+                android:layout_marginTop="16dp"
+                android:textSize="20sp"
+                android:textStyle="bold"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#209e9e9e"
+                android:text="@string/maghrib_arabic"
+                android:layout_marginTop="16dp"
+                android:textSize="20sp"
+                android:textStyle="bold"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/isha_arabic"
+                android:layout_marginTop="16dp"
+                android:textSize="20sp"
+                android:textStyle="bold"/>
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+</LinearLayout>
