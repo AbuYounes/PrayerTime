@@ -34,7 +34,7 @@ public class PrayerTimeUtils {
     public static long convertTimeStringToMilliSeconds(TimePrayer timePrayer){
         long millis = 0;
         String dateString = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
-        String dateTime = dateString + " "+"13:59:00"; //timePrayer.getIsha()+"
+        String dateTime = dateString + " "+"09:35:00"; //timePrayer.getIsha()+"
 
         /*
           With this new Date/Time API, when using a date, you need to
@@ -76,57 +76,5 @@ public class PrayerTimeUtils {
         SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREF_FRAGMENT, MODE_PRIVATE).edit();
         editor.putBoolean(ALARM_STATUS, alarmState);
         editor.apply();
-    }
-
-
-    public static void playSound(Context context, MediaPlayer mediaPlayer) {
-        mediaPlayer = new MediaPlayer();
-        try {
-            mediaPlayer.setDataSource(context, getAlarmUri());
-            final AudioManager audioManager = (AudioManager) context
-                    .getSystemService(Context.AUDIO_SERVICE);
-            if (audioManager.getStreamVolume(AudioManager.STREAM_ALARM) != 0) {
-                mediaPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
-                mediaPlayer.prepare();
-                mediaPlayer.start();
-            }
-        } catch (IOException e) {
-            System.out.println("OOPS");
-        }
-    }
-
-    //Get an alarm sound. Try for an alarm. If none set, try notification,
-    //Otherwise, ringtone.
-    private static Uri getAlarmUri() {
-        Uri alert = RingtoneManager
-                .getDefaultUri(RingtoneManager.TYPE_ALARM);
-        if (alert == null) {
-            alert = RingtoneManager
-                    .getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-            if (alert == null) {
-                alert = RingtoneManager
-                        .getDefaultUri(RingtoneManager.TYPE_RINGTONE);
-            }
-        }
-        return alert;
-    }
-
-    public static void startAlarm(Context context, AlarmManager alarmManager, AlarmTime alarmTimeMinutes, long millis) {
-        Intent mIntent = new Intent(context, AlarmBroadcastReceiver.class);
-        mIntent.putExtra(ALARM_STATUS, "on");
-        PendingIntent mPendingIntent = PendingIntent.getBroadcast(context, 1, mIntent, 0);
-
-        long fajrAlarmTime = alarmTimeMinutes.getFajrAlarm() * 60 * 1000;
-        long day = 24 * 60 * 60 * 1000;
-        long alarmTime = millis - (fajrAlarmTime - 60000);
-        Date date = new Date();
-        long timeInMillisecond = date.getTime();
-
-        if (alarmTime < timeInMillisecond) {
-            alarmTime += day;
-        }
-
-        alarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTime, mPendingIntent);
-
     }
 }

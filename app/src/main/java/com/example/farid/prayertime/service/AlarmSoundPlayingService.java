@@ -16,6 +16,9 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.navigation.Navigation;
+
+import com.example.farid.prayertime.R;
 import com.example.farid.prayertime.receiver.AlarmBroadcastReceiver;
 import com.example.farid.prayertime.helpers.NotificationHelper;
 
@@ -65,33 +68,22 @@ public class AlarmSoundPlayingService extends Service {
     public void onCreate() {
         super.onCreate();
         mAlarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        mDisposables.add(RxBusPrayerTime.subscribe(new Consumer<Object>() {
-            @Override
-            public void accept(Object o) throws Exception {
-                mTimePrayer = (TimePrayer) o;
-                mMillis = PrayerTimeUtils.convertTimeStringToMilliSeconds(mTimePrayer);
+        mDisposables.add(RxBusPrayerTime.subscribe(o -> {
+            mTimePrayer = (TimePrayer) o;
+            mMillis = PrayerTimeUtils.convertTimeStringToMilliSeconds(mTimePrayer);
+        }));
+
+        mDisposables.add(RxBusAlarmAction.subscribe(o -> {
+            mAlarmTime = (AlarmTime) o;
+            int action = mAlarmTime.action;
+            if (action == AlarmTime.ALARM_ACTION_SHOW_NOTIFICTION) {
+                notificationEnabled = true;
+            } else if (action == AlarmTime.ALARM_ACTION_DELETE_NOTIFICATION) {
+                notificationEnabled = false;
             }
         }));
 
-        mDisposables.add(RxBusAlarmAction.subscribe(new Consumer<Object>() {
-            @Override
-            public void accept(Object o) throws Throwable {
-                mAlarmTime = (AlarmTime) o;
-                int action = mAlarmTime.action;
-                if (action == AlarmTime.ALARM_ACTION_SHOW_NOTIFICTION) {
-                    notificationEnabled = true;
-                } else if (action == AlarmTime.ALARM_ACTION_DELETE_NOTIFICATION) {
-                    notificationEnabled = false;
-                }
-            }
-        }));
-
-        mDisposables.add(RxAlarmTimeInMinutes.subscribe(new Consumer<Object>() {
-            @Override
-            public void accept(Object o) throws Throwable {
-                mAlarmTimeMinutes = (AlarmTime) o;
-            }
-        }));
+        mDisposables.add(RxAlarmTimeInMinutes.subscribe(o -> mAlarmTimeMinutes = (AlarmTime) o));
     }
 
     @Override
@@ -104,7 +96,9 @@ public class AlarmSoundPlayingService extends Service {
         }
 
         Intent notificationIntent = new Intent(this.getApplicationContext(), MainActivity.class);
-        PendingIntent pIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationHelper notificationHelper = new NotificationHelper(this);
         Notification notification = notificationHelper.getNotificationBuilder("Fajr Alarm", "Tijd om op te staan", pIntent);
@@ -130,7 +124,7 @@ public class AlarmSoundPlayingService extends Service {
         //if there is no alarm sound and the user pressed alarm "on"
         //alarm should stop going off
         if (!this.isRunning && startId == 1) {
-            PrayerTimeUtils.playSound(this, mMediaPlayer);
+            playSound();
             this.isRunning = true;
 
             //if there is alarm sound and the user pressed alarm "off"
@@ -142,7 +136,7 @@ public class AlarmSoundPlayingService extends Service {
             stopSelf();
             this.isRunning = false;
 
-            PrayerTimeUtils.startAlarm(this, mAlarmManager, mAlarmTimeMinutes, mMillis);
+            startAlarm();
 
             //if there is no alarm sound and the user presses alarm "off" do nothing
         } else {
@@ -161,6 +155,57 @@ public class AlarmSoundPlayingService extends Service {
         mDisposables.clear();
 
 
+    }
+
+    public void startAlarm() {
+        Intent mIntent = new Intent(this, AlarmBroadcastReceiver.class);
+        mIntent.putExtra(ALARM_STATUS, "on");
+        PendingIntent mPendingIntent = PendingIntent.getBroadcast(this, 1, mIntent, 0);
+
+        long fajrAlarmTime = mAlarmTimeMinutes.getFajrAlarm() * 60 * 1000;
+        long day = 24 * 60 * 60 * 1000;
+        long alarmTime = mMillis - (fajrAlarmTime - 60000);
+        Date date = new Date();
+        long timeInMillisecond = date.getTime();
+
+        if (alarmTime < timeInMillisecond) {
+            alarmTime += day;
+        }
+
+        mAlarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTime, mPendingIntent);
+
+    }
+
+    public void playSound() {
+        mMediaPlayer = new MediaPlayer();
+        try {
+            mMediaPlayer.setDataSource(this, getAlarmUri());
+            final AudioManager audioManager = (AudioManager) this
+                    .getSystemService(Context.AUDIO_SERVICE);
+            if (audioManager.getStreamVolume(AudioManager.STREAM_ALARM) != 0) {
+                mMediaPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
+                mMediaPlayer.prepare();
+                mMediaPlayer.start();
+            }
+        } catch (IOException e) {
+            System.out.println("OOPS");
+        }
+    }
+
+    //Get an alarm sound. Try for an alarm. If none set, try notification,
+    //Otherwise, ringtone.
+    private Uri getAlarmUri() {
+        Uri alert = RingtoneManager
+                .getDefaultUri(RingtoneManager.TYPE_ALARM);
+        if (alert == null) {
+            alert = RingtoneManager
+                    .getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            if (alert == null) {
+                alert = RingtoneManager
+                        .getDefaultUri(RingtoneManager.TYPE_RINGTONE);
+            }
+        }
+        return alert;
     }
 
 }

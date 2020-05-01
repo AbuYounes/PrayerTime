@@ -26,8 +26,12 @@ import com.example.farid.prayertime.ui.MyViewModelFactory;
 import com.example.farid.prayertime.ui.PrayerViewModel;
 import com.example.farid.prayertime.util.PrayerTimeUtils;
 
+import java.util.Date;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
+
+import static com.example.farid.prayertime.Constants.ALARM_STATUS;
 
 public class AlarmDialogFragment extends Fragment {
     private static final String TAG = "AlarmDialogFragment";
@@ -84,15 +88,12 @@ public class AlarmDialogFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        prayerViewModel.getPrayerTime().observe(getActivity(), new Observer<TimePrayer>() {
-            @Override
-            public void onChanged(TimePrayer timePrayer) {
+        if(getActivity() != null) {
+            prayerViewModel.getPrayerTime().observe(getActivity(), timePrayer -> {
                 mTimePrayer = timePrayer;
                 mMillis = PrayerTimeUtils.convertTimeStringToMilliSeconds(mTimePrayer);
-            }
-        });
-
-
+            });
+        }
     }
 
     @Override
@@ -102,14 +103,35 @@ public class AlarmDialogFragment extends Fragment {
     }
 
     private void saveMinutes(){
-        saveMinutesBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                PrayerTimeUtils.startAlarm(getActivity(), mAlarmManager, mAlarmTime, mMillis);
-                if(getActivity() != null){
-                    getActivity().onBackPressed();
-                }
+        saveMinutesBtn.setOnClickListener(v -> {
+            startAlarm();
+            if(getActivity() != null){
+                getActivity().onBackPressed();
             }
         });
+    }
+
+    private void startAlarm() {
+        Intent mIntent = new Intent(getActivity(), AlarmBroadcastReceiver.class);
+        mIntent.putExtra(ALARM_STATUS, "on");
+        PendingIntent mPendingIntent = PendingIntent.getBroadcast(getActivity(), 1, mIntent, 0);
+        int value = mAlarmNumberPicker.getValue();
+        int minutes = Integer.parseInt(minuteValues[value]);
+
+        AlarmTime alarmTimeObject = new AlarmTime(minutes, 0, 0, 0, 0);
+        prayerViewModel.insert(alarmTimeObject);
+
+        long fajrAlarmTime = minutes * 60 * 1000;
+        long day = 24 * 60 * 60 * 1000;
+        long alarmTime = mMillis - fajrAlarmTime;
+        Date date = new Date();
+        long timeInMillisecond = date.getTime();
+
+        if (alarmTime < timeInMillisecond) {
+            alarmTime += day;
+        }
+
+        mAlarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTime, mPendingIntent);
+
     }
 }
