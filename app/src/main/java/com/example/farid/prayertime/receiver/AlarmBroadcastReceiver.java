@@ -25,10 +25,10 @@ public class AlarmBroadcastReceiver extends BroadcastReceiver {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             PrayerTimeUtils.saveFragState(context, true);
-            context.startForegroundService(serviceIntent.setAction("STOP_SERVICE"));
+            context.startForegroundService(serviceIntent);
         } else {
             PrayerTimeUtils.saveFragState(context, true);
-            context.startService(serviceIntent.setAction("STOP_SERVICE"));
+            context.startService(serviceIntent);
         }
 
 

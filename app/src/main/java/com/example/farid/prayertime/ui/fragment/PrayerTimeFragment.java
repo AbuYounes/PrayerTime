@@ -16,7 +16,6 @@ import com.example.farid.prayertime.R;
 import com.example.farid.prayertime.model.TimePrayer;
 import com.example.farid.prayertime.ui.MyViewModelFactory;
 import com.example.farid.prayertime.ui.PrayerViewModel;
-import com.example.farid.prayertime.util.PrayerTimeUtils;
 
 
 /**
@@ -79,14 +78,6 @@ public class PrayerTimeFragment extends Fragment {
                 initViews();
             });
         }
-
-        PrayerTimeUtils.toggleNotification(false);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        PrayerTimeUtils.toggleNotification(true);
     }
 
 

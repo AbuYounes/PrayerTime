@@ -1,21 +1,12 @@
 package com.example.farid.prayertime.util;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.media.RingtoneManager;
-import android.net.Uri;
 
 import com.example.farid.prayertime.model.AlarmTime;
-import com.example.farid.prayertime.receiver.AlarmBroadcastReceiver;
 import com.example.farid.prayertime.rxbus.RxBusAlarmAction;
 import com.example.farid.prayertime.model.TimePrayer;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -31,10 +22,11 @@ import static com.example.farid.prayertime.model.AlarmTime.ALARM_ACTION_SHOW_NOT
 
 public class PrayerTimeUtils {
 
+    //Convert alarm time to epoch milliseconds
     public static long convertTimeStringToMilliSeconds(TimePrayer timePrayer){
         long millis = 0;
         String dateString = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
-        String dateTime = dateString + " "+"09:35:00"; //timePrayer.getIsha()+"
+        String dateTime = dateString + " "+ timePrayer.getFajr()+":00";
 
         /*
           With this new Date/Time API, when using a date, you need to
@@ -62,6 +54,15 @@ public class PrayerTimeUtils {
         return millis;
     }
 
+
+    //Open the AlarmFragment when clicking on alarm notification
+    public static void saveFragState(Context context, boolean alarmState){
+        SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREF_FRAGMENT, MODE_PRIVATE).edit();
+        editor.putBoolean(ALARM_STATUS, alarmState);
+        editor.apply();
+    }
+
+    //TODO open the notification only when the app is killed or in background
     public static void toggleNotification(boolean show) {
         AlarmTime alarmTime;
         if (show) {
@@ -70,11 +71,5 @@ public class PrayerTimeUtils {
             alarmTime = new AlarmTime(ALARM_ACTION_DELETE_NOTIFICATION);
         }
         RxBusAlarmAction.publish(alarmTime);
-    }
-
-    public static void saveFragState(Context context, boolean alarmState){
-        SharedPreferences.Editor editor = context.getSharedPreferences(SHARED_PREF_FRAGMENT, MODE_PRIVATE).edit();
-        editor.putBoolean(ALARM_STATUS, alarmState);
-        editor.apply();
     }
 }

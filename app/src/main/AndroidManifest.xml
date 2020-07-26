@@ -9,7 +9,7 @@
     <application
         android:allowBackup="true"
         android:name=".MyApplication"
-        android:icon="@mipmap/stam_logo"
+        android:icon="@mipmap/ic_stam_icon"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
@@ -27,7 +27,12 @@
         </activity>
 
         <receiver android:name=".receiver.AlarmBroadcastReceiver"
-            android:exported="false"/>
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.example.farid.prayertime.SET_ALARM_FOREGROUND"/>
+            </intent-filter>
+        </receiver>
+
         <service android:name=".service.AlarmSoundPlayingService" />
     </application>
 

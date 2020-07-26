@@ -6,26 +6,18 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.IBinder;
-import android.util.Log;
-import android.widget.Toast;
-
-import androidx.navigation.Navigation;
-
-import com.example.farid.prayertime.R;
 import com.example.farid.prayertime.receiver.AlarmBroadcastReceiver;
 import com.example.farid.prayertime.helpers.NotificationHelper;
 
 import com.example.farid.prayertime.model.AlarmTime;
 import com.example.farid.prayertime.model.TimePrayer;
 import com.example.farid.prayertime.rxbus.RxAlarmTimeInMinutes;
-import com.example.farid.prayertime.rxbus.RxBusAlarmAction;
 import com.example.farid.prayertime.rxbus.RxBusPrayerTime;
 import com.example.farid.prayertime.ui.activity.MainActivity;
 import com.example.farid.prayertime.util.PrayerTimeUtils;
@@ -34,7 +26,6 @@ import java.io.IOException;
 import java.util.Date;
 
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
-import io.reactivex.rxjava3.functions.Consumer;
 
 import static com.example.farid.prayertime.Constants.ALARM_STATUS;
 
@@ -43,9 +34,9 @@ public class AlarmSoundPlayingService extends Service {
     private AlarmManager mAlarmManager;
     private long mMillis;
     private TimePrayer mTimePrayer;
-    private AlarmTime mAlarmTime, mAlarmTimeMinutes;
+    private AlarmTime mAlarmTimeMinutes;
     private MediaPlayer mMediaPlayer;
-    private boolean isRunning, notificationEnabled;
+    private boolean isRunning;
     private CompositeDisposable mDisposables = new CompositeDisposable();
 
     /**
@@ -73,38 +64,14 @@ public class AlarmSoundPlayingService extends Service {
             mMillis = PrayerTimeUtils.convertTimeStringToMilliSeconds(mTimePrayer);
         }));
 
-        mDisposables.add(RxBusAlarmAction.subscribe(o -> {
-            mAlarmTime = (AlarmTime) o;
-            int action = mAlarmTime.action;
-            if (action == AlarmTime.ALARM_ACTION_SHOW_NOTIFICTION) {
-                notificationEnabled = true;
-            } else if (action == AlarmTime.ALARM_ACTION_DELETE_NOTIFICATION) {
-                notificationEnabled = false;
-            }
-        }));
-
         mDisposables.add(RxAlarmTimeInMinutes.subscribe(o -> mAlarmTimeMinutes = (AlarmTime) o));
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d("PrayerTimeFragment", "Received start id " + startId + ": " + intent.getAction());
         String getAlarmStatus = intent.getStringExtra(ALARM_STATUS);
-        if (intent.getAction() != null &&
-                intent.getAction().equals("STOP_SERVICE")) {
-            stopForeground(true);
-        }
 
-        Intent notificationIntent = new Intent(this.getApplicationContext(), MainActivity.class);
-        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-                | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        PendingIntent pIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-        NotificationHelper notificationHelper = new NotificationHelper(this);
-        Notification notification = notificationHelper.getNotificationBuilder("Fajr Alarm", "Tijd om op te staan", pIntent);
-        notificationHelper.getNotificationManager().notify(1, notification);
-        startForeground(1, notification);
-
+        createNotification();
 
         switch (getAlarmStatus) {
             case "on":
@@ -153,8 +120,18 @@ public class AlarmSoundPlayingService extends Service {
     public void onDestroy() {
         this.isRunning = false;
         mDisposables.clear();
+    }
 
+    private void createNotification(){
+        Intent notificationIntent = new Intent(this.getApplicationContext(), MainActivity.class);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
+        NotificationHelper notificationHelper = new NotificationHelper(this);
+        Notification notification = notificationHelper.getNotificationBuilder("Fajr Alarm", "Tijd om op te staan", pIntent);
+        notificationHelper.getNotificationManager().notify(1, notification);
+        startForeground(1, notification);
     }
 
     public void startAlarm() {
@@ -167,7 +144,7 @@ public class AlarmSoundPlayingService extends Service {
         long alarmTime = mMillis - (fajrAlarmTime - 60000);
         Date date = new Date();
         long timeInMillisecond = date.getTime();
-
+//        long alarmTime = timeInMillisecond + 60000;
         if (alarmTime < timeInMillisecond) {
             alarmTime += day;
         }

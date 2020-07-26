@@ -37,7 +37,7 @@ public class NotificationHelper extends ContextWrapper {
                     new NotificationChannel(
                             MY_CHANNEL,
                             "StAM",
-                            NotificationManager.IMPORTANCE_DEFAULT);
+                            NotificationManager.IMPORTANCE_HIGH);
 
             // Configure the channel's initial settings
             myChannel.setLightColor(Color.GREEN);
@@ -64,7 +64,6 @@ public class NotificationHelper extends ContextWrapper {
                 .setLargeIcon(notificationLargeIconBitmap)
                 .setContentTitle(title)
                 .setContentText(body)
-                .setSound(Settings.System.DEFAULT_NOTIFICATION_URI)
                 .setVibrate(vibrationScheme)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(body))
                 .setColor(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimary))

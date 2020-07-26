@@ -7,8 +7,9 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 
 import com.example.farid.prayertime.model.AlarmTime;
+import com.example.farid.prayertime.model.PrayerAlarmTime;
 
-@Database(entities = {AlarmTime.class}, version = 1)
+@Database(entities = {AlarmTime.class, PrayerAlarmTime.class}, version = 1)
 public abstract class AnourDatabase extends RoomDatabase {
     public abstract PrayerDao prayerDao();
 

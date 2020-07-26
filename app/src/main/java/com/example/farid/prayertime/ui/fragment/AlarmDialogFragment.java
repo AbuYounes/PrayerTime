@@ -1,9 +1,6 @@
 package com.example.farid.prayertime.ui.fragment;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,10 +12,8 @@ import android.widget.NumberPicker;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.farid.prayertime.receiver.AlarmBroadcastReceiver;
 import com.example.farid.prayertime.R;
 import com.example.farid.prayertime.model.AlarmTime;
 import com.example.farid.prayertime.model.TimePrayer;
@@ -31,8 +26,6 @@ import java.util.Date;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static com.example.farid.prayertime.Constants.ALARM_STATUS;
-
 public class AlarmDialogFragment extends Fragment {
     private static final String TAG = "AlarmDialogFragment";
 
@@ -43,17 +36,19 @@ public class AlarmDialogFragment extends Fragment {
 
     private PrayerViewModel prayerViewModel;
     private TimePrayer mTimePrayer;
-    private AlarmTime mAlarmTime;
     private long mMillis;
 
     private String[] minuteValues = {"00", "05", "10", "15", "20", "25", "30", "35", "40", "45", "50", "55", "60"};
-    private AlarmManager mAlarmManager;
+
+    private OnDataPassMillisecondsListsener dataPasser;
+    public interface OnDataPassMillisecondsListsener {
+        void onDataPass(long alarmMilliseconds);
+    }
 
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         if(getActivity() !=null) {
             prayerViewModel = new ViewModelProvider(getActivity(), new MyViewModelFactory(getActivity().getApplication())).get(PrayerViewModel.class);
         }
@@ -68,14 +63,10 @@ public class AlarmDialogFragment extends Fragment {
         View rootView =  inflater.inflate(R.layout.dialog_set_alarm, container, false);
         ButterKnife.bind(this, rootView);
 
-        if(getActivity() != null){
-            mAlarmManager = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
-        }
-
-
         //Populate NumberPicker values from minimum and maximum value range
         //Set the minimum value of NumberPicker
         mAlarmNumberPicker.setMinValue(0);
+
         //Specify the maximum value/number of NumberPicker
         mAlarmNumberPicker.setMaxValue(minuteValues.length-1);
         mAlarmNumberPicker.setWrapSelectorWheel(true);
@@ -96,31 +87,28 @@ public class AlarmDialogFragment extends Fragment {
         }
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        PrayerTimeUtils.toggleNotification(false);
+    private void passData(long alarmMilliseconds) {
+        dataPasser.onDataPass(alarmMilliseconds);
     }
 
     private void saveMinutes(){
         saveMinutesBtn.setOnClickListener(v -> {
-            startAlarm();
+            long alarmTime = getValueNumberPicker();
+            passData(alarmTime);
             if(getActivity() != null){
                 getActivity().onBackPressed();
             }
         });
     }
 
-    private void startAlarm() {
-        Intent mIntent = new Intent(getActivity(), AlarmBroadcastReceiver.class);
-        mIntent.putExtra(ALARM_STATUS, "on");
-        PendingIntent mPendingIntent = PendingIntent.getBroadcast(getActivity(), 1, mIntent, 0);
+    private long getValueNumberPicker(){
+        //Get value out of numberpicker and store it into database
         int value = mAlarmNumberPicker.getValue();
         int minutes = Integer.parseInt(minuteValues[value]);
-
         AlarmTime alarmTimeObject = new AlarmTime(minutes, 0, 0, 0, 0);
         prayerViewModel.insert(alarmTimeObject);
 
+        //convert value of numberpicker to epoch milliseconds
         long fajrAlarmTime = minutes * 60 * 1000;
         long day = 24 * 60 * 60 * 1000;
         long alarmTime = mMillis - fajrAlarmTime;
@@ -130,8 +118,12 @@ public class AlarmDialogFragment extends Fragment {
         if (alarmTime < timeInMillisecond) {
             alarmTime += day;
         }
+        return alarmTime;
+    }
 
-        mAlarmManager.setExact(AlarmManager.RTC_WAKEUP, alarmTime, mPendingIntent);
-
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        dataPasser = (OnDataPassMillisecondsListsener) context;
     }
 }

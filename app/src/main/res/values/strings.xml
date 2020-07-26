@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">PrayerTime</string>
+    <string name="app_name">StAM</string>
 
     <string name="fajr">Fajr</string>
     <string name="shoeroeq">Shoeroeq</string>
@@ -18,4 +18,7 @@
     <string name="set_alarm_time">Set alarm</string>
     <string name="ok">OK</string>
     <string name="save">Save</string>
+    <string name="alarm_button">Alarm button</string>
+    <string name="set">Set</string>
+    <string name="cancel">Cancel</string>
 </resources>

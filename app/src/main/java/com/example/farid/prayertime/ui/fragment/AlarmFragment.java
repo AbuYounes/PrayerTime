@@ -1,9 +1,6 @@
 package com.example.farid.prayertime.ui.fragment;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,18 +14,14 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.farid.prayertime.model.AlarmTime;
-import com.example.farid.prayertime.receiver.AlarmBroadcastReceiver;
 import com.example.farid.prayertime.R;
 import com.example.farid.prayertime.rxbus.RxAlarmTimeInMinutes;
 import com.example.farid.prayertime.rxbus.RxBusPrayerTime;
 import com.example.farid.prayertime.model.TimePrayer;
 import com.example.farid.prayertime.ui.PrayerViewModel;
-import com.example.farid.prayertime.util.PrayerTimeUtils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-
-import static com.example.farid.prayertime.Constants.ALARM_STATUS;
 
 public class AlarmFragment extends Fragment {
     private static final String TAG = "AlarmFragment";
@@ -36,19 +29,20 @@ public class AlarmFragment extends Fragment {
     @BindView(R.id.alarm_clock)
     ImageView mAlarmClock;
 
-    private AlarmManager mAlarmManager;
-
-    private Intent mIntent;
-
     private PrayerViewModel prayerViewModel;
     private TimePrayer mTimePrayer;
     private AlarmTime mAlarmTime;
 
+    private OnStopAlarmListener alarmCanceler;
+    public interface OnStopAlarmListener {
+        void onStopAlarm();
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if(getActivity() !=null) {
+            //Instantiate viewmodel and alarmmanager
             prayerViewModel = new ViewModelProvider(getActivity()).get(PrayerViewModel.class);
         }
     }
@@ -60,10 +54,6 @@ public class AlarmFragment extends Fragment {
         View rootView =  inflater.inflate(R.layout.fragment_alarm, container, false);
         ButterKnife.bind(this, rootView);
 
-        if(getActivity() != null){
-            mAlarmManager = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
-        }
-
         return rootView;
     }
 
@@ -74,7 +64,6 @@ public class AlarmFragment extends Fragment {
             @Override
             public void onChanged(TimePrayer timePrayer) {
                 mTimePrayer = timePrayer;
-
                 clickAlarmClock();
             }
         });
@@ -87,16 +76,8 @@ public class AlarmFragment extends Fragment {
         });
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        PrayerTimeUtils.toggleNotification(false);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        PrayerTimeUtils.toggleNotification(true);
+    private void stopAlarm() {
+        alarmCanceler.onStopAlarm();
     }
 
     private void clickAlarmClock(){
@@ -106,18 +87,19 @@ public class AlarmFragment extends Fragment {
                 if(getActivity() != null) {
                     RxBusPrayerTime.publish(mTimePrayer);
                     RxAlarmTimeInMinutes.publish(mAlarmTime);
-                    mIntent = new Intent(getActivity(), AlarmBroadcastReceiver.class);
-                    mIntent.putExtra(ALARM_STATUS, "off");
-                    getActivity().sendBroadcast(mIntent);
-                    PendingIntent pendingIntent = PendingIntent.getBroadcast(getActivity(), 1, mIntent, 0);
-                    mAlarmManager.cancel(pendingIntent);
+                    stopAlarm();
                 }
                 if(getActivity() != null){
                     getActivity().onBackPressed();
                 }
-
             }
         });
+    }
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        alarmCanceler = (OnStopAlarmListener) context;
     }
 
 }
